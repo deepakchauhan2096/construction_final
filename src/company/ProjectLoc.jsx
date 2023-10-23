@@ -37,8 +37,8 @@ const ProjectLoc = (props) => {
  
 
   const [markerPosition, setMarkerPosition] = useState({
-    lat: "",
-    lng: "",
+    lat: 0,
+    lng: 0,
   });
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -50,9 +50,9 @@ const ProjectLoc = (props) => {
   });
 
   
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  // useEffect(() => {
+  //   fetchProjects();
+  // }, []);
 
   
 
@@ -176,9 +176,9 @@ const ProjectLoc = (props) => {
     }
   };
 
-  // useEffect(() => {
-  //   getLocation();
-  // }, []);
+  useEffect(() => {
+    getLocation();
+  }, []);
    // Run only once when component mounts
 
   const fetchLocationName = async (lat, lon) => {

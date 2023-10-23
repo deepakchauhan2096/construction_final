@@ -3,7 +3,8 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
 import Cookies from "js-cookie";
-import { Link , useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
 
 const containerStyle = {
   width: "100%",
@@ -18,6 +19,16 @@ const center = {
 window.google = window.google || {};
 
 const EmployeeDetail = ({ state }) => {
+
+
+
+  console.log(state, "state")
+
+
+
+
+
+
   const navigate = useNavigate();
   const [circleCenter, setCircleCenter] = useState([0, 0]);
   const [circleRadius, setCircleRadius] = useState(100);
@@ -25,9 +36,41 @@ const EmployeeDetail = ({ state }) => {
   const [map, setMap] = useState(null);
   const [project, setProject] = useState();
   const [filterProject, setFilterproject] = useState("");
-  console.log(state, "userEmp");
+  const [empdata, setEmpdata] = useState([]);
+  // console.log(state, "userEmp");
 
-  const PROJECTS = state.EMPLOYEE_ASSIGN;
+  useEffect(() => {
+    let config = {
+      method: "put",
+      maxBodyLength: Infinity,
+      url: "/emp_data_one",
+      headers: {
+        authorization_key: "qzOUsBmZFgMDlwGtrgYypxUz",
+        "Content-Type": "application/json",
+      },
+      data: {
+        ADMIN_USERNAME: state[3],
+        EMPLOYEE_ID: state[0]
+      }
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(response.data, "mylogin ll");
+        const data = response.data;
+        if (data.result) {
+          setEmpdata(data.result);
+        }
+      })
+      .catch((error) => {
+        console.log(error, "errors");
+      });
+  }, [state[3]]);
+
+
+  const PROJECTS = empdata.EMPLOYEE_ASSIGN;
+  console.log(PROJECTS, "PROJECTS")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,14 +107,16 @@ const EmployeeDetail = ({ state }) => {
         const responses = await Promise.all(requests);
 
         const arry = responses.map((response) => response.data.result[0]);
-        setProject(arry);
+        if (arry) {
+          setProject(arry);
+        }
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [empdata]);
 
   const onLoad = (map) => {
     setMap(map);
@@ -80,6 +125,9 @@ const EmployeeDetail = ({ state }) => {
   useEffect(() => {
     onLoad();
   }, [markerPosition]);
+
+
+  console.log(project, "arry")
 
   const filter = (event) => {
     const myproject = project.find((e) => e.PROJECT_NAME === event);
@@ -94,11 +142,16 @@ const EmployeeDetail = ({ state }) => {
     console.log(myproject, "myproject");
   };
 
-  
-  const logout = () => {
-    // Clear a cookie by specifying its name
-    Cookies.remove("myResponseData");
-    navigate("/employee/login");
+
+  const logout = async () => {
+    try {
+      await auth.signOut();
+      // Add any additional logout-related actions here
+      navigate('/employee/login')
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error logging out: ', error);
+    }
   };
 
   return (
@@ -161,10 +214,10 @@ const EmployeeDetail = ({ state }) => {
                       <td>{item?.PROJECT_START_DATE}</td>
                       <td>{item?.PROJECT_END_DATE}</td>
                       <td>
-                        <Link to={`/employee/attendance/${item?.LATITUDE}/${item?.LONGITUDE}/${item?.AREA}/${item?.LOCATION_NAME}/${state.EMPLOYEE_NAME}/${item?.PROJECT_NAME}/${item?.PROJECT_ID}`}
+                        <Link to={`/employee/attendance/${item?.LATITUDE}/${item?.LONGITUDE}/${item?.AREA}/${item?.LOCATION_NAME}/${empdata?.EMPLOYEE_NAME}/${item?.PROJECT_NAME}/${item?.PROJECT_ID}`}
                           className="btn btn-sm btn-primary"
-                          // to={`/employee/attendance/${item?.LATITUDE}&${item?.LONGITUDE}&${item?.AREA}&${item?.LOCATION_NAME}&${state.EMPLOYEE_NAME}&${item?.PROJECT_NAME}&${item?.PROJECT_ID}`}
-                         
+                        // to={`/employee/attendance/${item?.LATITUDE}&${item?.LONGITUDE}&${item?.AREA}&${item?.LOCATION_NAME}&${state.EMPLOYEE_NAME}&${item?.PROJECT_NAME}&${item?.PROJECT_ID}`}
+
 
                         >
                           Visit

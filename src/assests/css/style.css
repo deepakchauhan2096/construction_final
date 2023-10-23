@@ -22,6 +22,10 @@ p,b{
 
 } */
 
+.table-hover:hover{
+  background: #555555;
+}
+
 .fw-light {
   font-size: 12px;
   margin-bottom: 0;

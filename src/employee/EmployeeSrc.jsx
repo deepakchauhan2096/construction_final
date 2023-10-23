@@ -23,11 +23,13 @@ import EmployeeEdit from "./EmployeeEdit";
 import { useParams } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import GenPassword from "./GenPassword";
+
 // import env from "react-dotenv";
 
 const EmployeeSrc = (props) => {
   const { id } = useParams();
-  const param = id.split("&");
+  const param = id?.split("&");
   const COMPANY_ID = param[0];
   const COMPANY_USERNAME = param[1];
   const COMPANY_PARENT_ID = param[2];
@@ -83,14 +85,18 @@ const EmployeeSrc = (props) => {
       EMPLOYEE_PHONE: "",
       EMPLOYEE_EMAIL: "",
       EMPLOYEE_USERNAME: "",
+      EMPLOYEE_ID: "",
       __v: 0,
     },
   });
   const [open, setOpen] = React.useState(false);
-  const [index, setIndex] = useState(1);
+  const [index, setIndex] = useState(0);
   const [isSuccessMessageVisible, setIsSuccessMessageVisible] = useState(false);
   const [selectedProject, setSelectedProject] = useState([]);
   const [openNav, setOpenNav] = useState(false);
+
+
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -387,9 +393,13 @@ const EmployeeSrc = (props) => {
 
   const drawerWidth = 250;
 
-  console.log(filterData.row,"filterData.row")
+  console.log(filterData.row, "filterData.row")
 
   // const filterProjects =
+
+
+
+
 
   return (
     <>
@@ -418,26 +428,26 @@ const EmployeeSrc = (props) => {
               <Animations />
             ) : (
               <>
-              <DataGrid
-               className="display"
-                sx={{ border: "none" }}
-                rows={rows}
-                columns={columns}
-                getRowId={(row) => row.EMPLOYEE_ID}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 20,
+                <DataGrid
+                  className="display"
+                  sx={{ border: "none" }}
+                  rows={rows}
+                  columns={columns}
+                  getRowId={(row) => row.EMPLOYEE_ID}
+                  initialState={{
+                    pagination: {
+                      paginationModel: {
+                        pageSize: 20,
+                      },
                     },
-                  },
-                }}
-                density="compact"
-                pageSizeOptions={[5]}
-                // checkboxSelection
-                disableRowSelectionOnClick
-              />
+                  }}
+                  density="compact"
+                  pageSizeOptions={[5]}
+                  // checkboxSelection
+                  disableRowSelectionOnClick
+                />
               </>
-            
+
 
             )}
           </Box>
@@ -490,24 +500,41 @@ const EmployeeSrc = (props) => {
                   <div className="col-12">
                     <div className="card">
                       <div className="card-body">
-                        <h5 className="card-title">Employee Information</h5>
-                        <p className="card-text">
-                          Name: {filterData.row?.EMPLOYEE_NAME}
-                        </p>
-                        <p className="card-text">
-                          Email: {filterData.row?.EMPLOYEE_EMAIL}
-                        </p>
-                        <p className="card-text">
-                          Phone: {filterData.row?.EMPLOYEE_PHONE}
-                        </p>
-                        <p className="card-text">
-                          Password: {filterData.row?.EMPLOYEE_PASSWORD}
-                        </p>
-                        <p className="card-text">
-                          Address: {filterData.row?.EMPLOYEE_STATE}{" "}
-                          {filterData.row?.EMPLOYEE_CITY}
-                        </p>
-                        {/* Add more employee information here */}
+                        <table className="table" style={{ tableLayout: "" }}>
+                          <tbody >
+                            <GenPassword 
+                            PROJECT_DATA={filterData?.row} 
+                            EMPLOYEE_USERNAME={filterData.row?.EMPLOYEE_USERNAME} EMPLOYEE_ID={filterData.row?.EMPLOYEE_ID} ADMIN_ID={filterData.row?.EMPLOYEE_MEMBER_PARENT_ID} ADMIN_USERNAME={filterData.row?.EMPLOYEE_MEMBER_PARENT_USERNAME} />
+
+                            <tr>
+                              <td><b>Email :</b></td>
+                              <>
+                                <td className="d-flex" style={{ gap: 4 }}>
+                                  {filterData.row?.EMPLOYEE_EMAIL}
+                                </td>
+                              </>
+                            </tr>
+
+                            <tr>
+                              <td><b>Phone :</b></td>
+                              <>
+                                <td className="d-flex" style={{ gap: 4 }}>
+                                  {filterData.row?.EMPLOYEE_PHONE}
+                                </td>
+                              </>
+                            </tr>
+
+                            <tr>
+                              <td><b>Address :</b></td>
+                              <>
+                                <td className="d-flex" style={{ gap: 4 }}>
+                                  {filterData.row.EMPLOYEE_STATE ? filterData.row?.EMPLOYEE_STATE : "Not Available"}{" "}
+                                  {filterData.row?.EMPLOYEE_CITY}
+                                </td>
+                              </>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
@@ -559,7 +586,7 @@ const EmployeeSrc = (props) => {
                             {filterData.row?.EMPLOYEE_NAME}
                           </span>
                         </h5>
-                        <div className="d-flex align-items-center" style={{gap:4}}>
+                        <div className="d-flex align-items-center" style={{ gap: 4 }}>
                           <select
                             className="form-select form-control-2"
                             value={selectedProject}
@@ -591,17 +618,17 @@ const EmployeeSrc = (props) => {
                         <table className="table table-sm overflow-scroll">
                           <thead>
                             <tr>
-                            <th scope="col">S.No</th>
+                              <th scope="col">S.No</th>
                               <th scope="col">Project ID</th>
                               <th scope="col">Project Name</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {filterData.row?.EMPLOYEE_ASSIGN?.map((project,index) => (
+                            {filterData.row?.EMPLOYEE_ASSIGN?.map((project, index) => (
                               <tr key={project.PROJECT_ID} >
-                                 <td style={{backgroundColor:index%2 === 0 ? "#f2f2f2" : "#fffff"}}>{index+1}</td>
-                                <td style={{backgroundColor:index%2 === 0 ? "#f2f2f2" : "#fffff"}}>{project.PROJECT_ID}</td>
-                                <td style={{backgroundColor:index%2 === 0 ? "#f2f2f2" : "#fffff"}}>{project.PROJECT_NAME}</td>
+                                <td style={{ backgroundColor: index % 2 === 0 ? "#f2f2f2" : "#fffff" }}>{index + 1}</td>
+                                <td style={{ backgroundColor: index % 2 === 0 ? "#f2f2f2" : "#fffff" }}>{project.PROJECT_ID}</td>
+                                <td style={{ backgroundColor: index % 2 === 0 ? "#f2f2f2" : "#fffff" }}>{project.PROJECT_NAME}</td>
                               </tr>
                             ))}
                           </tbody>

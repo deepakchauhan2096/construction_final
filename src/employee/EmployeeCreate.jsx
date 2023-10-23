@@ -127,10 +127,10 @@ export default function AddEmployee({ COMPANY_ID, COMPANY_USERNAME, COMPANY_PARE
       return;
     }
 
-    if (!isValidUsername) {
-      setUsernameError("Invalid username");
-      return;
-    }
+    // if (!isValidUsername) {
+    //   setUsernameError("Invalid username");
+    //   return;
+    // }
 
     if (!isValidEmail) {
       setEmailError("Invalid email address");
@@ -174,38 +174,6 @@ export default function AddEmployee({ COMPANY_ID, COMPANY_USERNAME, COMPANY_PARE
   };
 
 
-  const handleSubmission = (e) => {
-    e.preventDefault();
-
-    // if (!createEmployee.EMPLOYEE_USERNAME || !createEmployee.EMPLOYEE_EMAIL || !createEmployee.EMPLOYEE_PASSWORD) {
-    //   setErrorMsg("Fill all fields");
-    //   return;
-    // }
-    // setErrorMsg("");
-
-    setSubmitButtonDisabled(true);
-    createUserWithEmailAndPassword(auth, createEmployee.EMPLOYEE_EMAIL, createEmployee.EMPLOYEE_PASSWORD)
-      .then(async (res) => {
-        setSubmitButtonDisabled(false);
-        const user = res.user;
-        await updateProfile(user, {
-          displayName: createEmployee.EMPLOYEE_USERNAME,
-        });
-        handleSubmit()
-        // navigate("/dashboard");
-      })
-      .catch((err) => {
-        setSubmitButtonDisabled(false);
-        setErrorMsg(err.message);
-        setEmailError(err.message)
-      });
-  };
-
-
-
-
-
-
   return (
     < >
       <Button
@@ -236,7 +204,7 @@ export default function AddEmployee({ COMPANY_ID, COMPANY_USERNAME, COMPANY_PARE
           maxWidth="xl"
         >
           <Box className="modal-content">
-            <form onSubmit={handleSubmit} className="overflow-auto">
+            <form onSubmit={handleSubmit} className="overflow-auto overflow-x-hidden">
               <h5>Create Employee</h5>
               <div className="row py-1">
                 <div className="form-group col-xl-6">
@@ -280,7 +248,7 @@ export default function AddEmployee({ COMPANY_ID, COMPANY_USERNAME, COMPANY_PARE
                     className={`form-control form-control-2 rounded-0 ${emailError ? "is-invalid" : ""
                       }`}
                     id="email"
-                    placeholder="Enter Email add..."
+                    placeholder="Enter Email address"
                     value={createEmployee.EMPLOYEE_EMAIL}
                     name="EMPLOYEE_EMAIL"
                     onChange={handleCreate}
@@ -481,14 +449,14 @@ export default function AddEmployee({ COMPANY_ID, COMPANY_USERNAME, COMPANY_PARE
 
                 <button
                   type="submit"
-                  className="btn btn-info text-white "
-                  onClick={handleSubmission}
+                  className="btn btn-info text-white btn-sm"
+                  onClick={handleSubmit}
                 >
                   Create Employee
                 </button>{" "}
                 <button
                   onClick={handleClose}
-                  className="btn btn-danger text-white "
+                  className="btn btn-danger text-white btn-sm"
                 >
                   Cancel
                 </button>

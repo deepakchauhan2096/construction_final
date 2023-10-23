@@ -7,7 +7,7 @@ import { auth } from "../firebase";
 
 import styles from "../assests/css/Login.module.css";
 
-function Login() {
+function Logincomp() {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     email: "",
@@ -29,23 +29,26 @@ function Login() {
     setSubmitButtonDisabled(true);
     signInWithEmailAndPassword(auth, values.email, values.pass)
       .then(async (res) => {
+        console.log("res", res.user.displayName);
+
+        // res.user.displayName ? navigate("/company"):
+        
         setSubmitButtonDisabled(false);
         setLoading(false)
-        navigate("/admin");
-        setErrorMsg(res);
+        const data = res.user.displayName
+        navigate("/company" , {state : data});
       })
       .catch((err) => {
         setSubmitButtonDisabled(false);
-        setErrorMsg(err);
+        setErrorMsg(err.message);
         setLoading(false)
-        console.log(err,"err")
       });
   };
   return (
     <div className={styles.container}>
       <div className={styles.innerBox}>
         <h5 className={styles.heading}>Shalbro Constructions</h5>
-        <h5 className="text-center">Login(root)</h5>
+        <h5 className="text-center">Login(Company)</h5>
 
         <InputControl
           label="Email"
@@ -87,4 +90,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Logincomp;

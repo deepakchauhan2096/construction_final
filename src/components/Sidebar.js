@@ -12,9 +12,10 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "bootstrap";
 import Navbar from "./Navbar";
+import { auth } from "../firebase";
 
 const Sidebar = ({
   COMPANY_ID,
@@ -25,6 +26,18 @@ const Sidebar = ({
   toggle,
 }) => {
   // console.log(toggle, "control");
+  const navigate = useNavigate()
+
+
+  const Logout = async () => {
+    try {
+      await auth.signOut();
+      navigate("/company/login")
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error logging out: ', error);
+    }
+  };
 
   const drawerWidth = 0;
   return (
@@ -42,7 +55,7 @@ const Sidebar = ({
           variant="permanent"
           anchor="left"
           PaperProps={{
-            class:"sidebar display-sidebar-desk"
+            class: "sidebar display-sidebar-desk"
           }}
         >
           <div
@@ -51,7 +64,7 @@ const Sidebar = ({
           >
             <h5 className="pt-2">{COMPANY_USERNAME}</h5>
             <Tooltip title={"copany"}>
-              <Avatar>{(COMPANY_USERNAME).slice(0,1)}</Avatar>
+              <Avatar>{(COMPANY_USERNAME)?.slice(0, 1)}</Avatar>
             </Tooltip>
           </div>
           <Divider />
@@ -130,12 +143,17 @@ const Sidebar = ({
             style={{ bottom: "0" }}
           >
             <div className="logout_icon ">
-              <Link className="text-dark text-uppercase" to="/admin">
-                <LogoutIcon style={{ display: "inline" }} /> Exit
-              </Link>
+              <button
+                class="text-dark text-uppercase btn-link border-0 bg-white"
+                type="submit"
+                onClick={Logout}
+              >
+                <LogoutIcon style={{ display: "inline" }} onClick={Logout} />  Logout
+              </button>
             </div>
           </div>
           <Divider />
+         
         </Drawer>
 
         <Drawer
@@ -150,7 +168,7 @@ const Sidebar = ({
           variant="persistent"
           anchor="left"
           PaperProps={{
-            class:"sidebar display-sidebar-mobile"
+            class: "sidebar display-sidebar-mobile"
           }}
           open={toggle}
         >
@@ -158,9 +176,9 @@ const Sidebar = ({
             className="sidebar-header d-flex p-3 f-20"
             style={{ justifyContent: "space-between" }}
           >
-              <h5 className="pt-2">{COMPANY_USERNAME}</h5>
+            <h5 className="pt-2">{COMPANY_USERNAME}</h5>
             <Tooltip title={"copany"}>
-              <Avatar>{(COMPANY_USERNAME).slice(0,1)}</Avatar>
+              <Avatar>{(COMPANY_USERNAME)?.slice(0, 1)}</Avatar>
             </Tooltip>
           </div>
           <Divider />
@@ -239,9 +257,13 @@ const Sidebar = ({
             style={{ bottom: "0" }}
           >
             <div className="logout_icon ">
-              <Link className="text-dark text-uppercase" to="/admin">
-                <LogoutIcon style={{ display: "inline" }} /> Exit
-              </Link>
+            <button
+                class="text-dark text-uppercase btn-link border-0 bg-white"
+                type="submit"
+                onClick={Logout}
+              >
+                <LogoutIcon style={{ display: "inline" }} onClick={Logout} />  Logout
+              </button>
             </div>
           </div>
           <Divider />

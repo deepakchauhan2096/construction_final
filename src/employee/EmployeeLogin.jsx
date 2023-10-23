@@ -1,105 +1,93 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"
-import InputControl from "../components/InputControl";
-import styles from "../assests/css/Login.module.css";
-import Cookies from "js-cookie";
-import env from "react-dotenv";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
-function EmployeeLogin() {
+import InputControl from "../components/InputControl";
+import { auth } from "../firebase";
+
+import styles from "../assests/css/Login.module.css";
+
+function Login() {
   const navigate = useNavigate();
   const [values, setValues] = useState({
-    ADMIN_USERNAME: "",
-    EMPLOYEE_PASSWORD: "",
-    EMPLOYEE_ID: ""
+    email: "",
+    pass: "",
   });
   const [errorMsg, setErrorMsg] = useState("");
   const [submitButtonDisabled, setSubmitButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showpassword, setShowpassword] = useState(true)
 
   const handleSubmission = () => {
-    console.log("enter", values)
-    if (!values.ADMIN_USERNAME || !values.EMPLOYEE_PASSWORD || !values.EMPLOYEE_ID) {
-      setErrorMsg("Fill all fields");
+
+    if (!values.email || !values.pass) {
+      setErrorMsg("Please fill all fields");
       return;
     }
     setErrorMsg("");
+    setLoading(true)
+    setSubmitButtonDisabled(true);
+    signInWithEmailAndPassword(auth, values.email, values.pass)
+      .then(async (res) => {
+        console.log("res", res.user.displayName);
 
-    // setSubmitButtonDisabled(true);
-
-    let config = {
-      method: "post",
-      maxBodyLength: Infinity,
-      url: "/emplogin",
-      headers: {
-        authorization_key: "qzOUsBmZFgMDlwGtrgYypxUz",
-        "Content-Type": "application/json",
-      },
-      data: values,
-    };
-
-    axios
-      .request(config)
-      .then((response) => {
-        console.log(response.data, "mylogin ll");
-        // setSubmitButtonDisabled(false);
-        const data = response.data
-        if(data.operation === "successfull"){
-          Cookies.set("myResponseEmployee", JSON.stringify(data), { expires: 7 }); // Cookie will expire in 7 days
-          window.location.replace("/employee")
-        }
+        // res.user.displayName ? navigate("/company"):
+        
+        setSubmitButtonDisabled(false);
+        setLoading(false)
+        const data = res.user.displayName
+        navigate("/employee" , {state : data});
       })
-      .catch((error) => {
-        console.log(error, "errors");
-        setErrorMsg(error.response.data.error);
-        // setSubmitButtonDisabled(true);
+      .catch((err) => {
+        setSubmitButtonDisabled(false);
+        setErrorMsg(err.message);
+        setLoading(false)
       });
   };
-
-
-
   return (
     <div className={styles.container}>
       <div className={styles.innerBox}>
-        <h1 className={styles.heading}>Login<sup style={{ fontSize: "20px", color: "tomato" }}>Employee</sup></h1>
+        <h5 className={styles.heading}>Shalbro Constructions</h5>
+        <h5 className="text-center">Login(Employee)</h5>
 
         <InputControl
-          label="Admin Username"
+          label="Email"
           onChange={(event) =>
-            setValues((prev) => ({ ...prev, ADMIN_USERNAME: event.target.value }))
+            setValues((prev) => ({ ...prev, email: event.target.value }))
           }
-          placeholder="Enter Admin Username"
+          placeholder="Enter email address"
         />
-        <InputControl
-          label="Employee ID"
-          type="number"
-          onChange={(event) =>
-            setValues((prev) => ({ ...prev, EMPLOYEE_ID: event.target.value }))
-          }
-          placeholder="Enter Employee ID"
-        />
-        <InputControl
-          label="Password"
-          onChange={(event) =>
-            setValues((prev) => ({ ...prev, EMPLOYEE_PASSWORD: event.target.value }))
-          }
-          placeholder="Enter Password"
-        />
+
+        <span style={{ position: "relative" }}>
+          <InputControl
+            label="Password"
+            type={showpassword ? "password" : "text"}
+            onChange={(event) =>
+              setValues((prev) => ({ ...prev, pass: event.target.value }))
+            }
+            placeholder="Enter Password"
+          />
+          <span style={{ position: "absolute", right: "10px", top: "50%" }}>
+            <i className={showpassword ? "fa fa-eye-slash" : "fa fa-eye" } onClick={() => setShowpassword(e => !e)}></i></span>
+            
+        </span>
 
         <div className={styles.footer}>
           <b className={styles.error}>{errorMsg}</b>
           <button disabled={submitButtonDisabled} onClick={handleSubmission}>
-            Login
+            {loading ? "loading..." : "Login"}
           </button>
           <p>
-            Already have an account?{" "}
+            For an employee account?{" "}
             <span>
-              <Link to="/signup">Sign up</Link>
+              <Link to="/company/login">Contact to Company</Link>
             </span>
           </p>
         </div>
+
       </div>
     </div>
   );
 }
 
-export default EmployeeLogin;
+export default Login;

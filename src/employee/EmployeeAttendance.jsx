@@ -3,11 +3,16 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {
   GoogleMap,
-  Autocomplete,
-  LoadScript,
   MarkerF,
+  LoadScript,
   CircleF,
 } from "@react-google-maps/api";
+
+import {
+  GOOGLE_MAPS_API_KEY,
+  GOOGLE_MAPS_LIBRARIES,
+} from "../components/Constants"; // Adjust the path accordingly
+
 
 import { Box, Button, Grid, Paper, Typography } from "@mui/material";
 import { useLocation, useParams } from "react-router";
@@ -17,28 +22,16 @@ import locationIcon from "../assests/images/location.png";
 import placeholder from "../assests/images/placeholder.png";
 import { styled } from "@mui/styles";
 import { Link, useNavigate } from "react-router-dom";
+import { auth } from '../firebase';
 
 const containerStyle = {
   width: "100%",
   height: "63vh",
 };
 
-const EmployeeAttendance = (props) => {
+const EmployeeAttendance = ({ state }) => {
   const navigate = useNavigate();
-  // get data by param
-
-  const {latt , lngi ,areas , loca , employees ,projects ,projectids } = useParams();
-  // const data = id.split("&");
-  // const Lat = parseFloat(data[0]);
-  // const Long = parseFloat(data[1]);
-  // const Area = parseInt(data[2]);
-  // const LocName = data[3];
-  // const Name = data[4];
-  // const ProjectName = data[5];
-  // const Project_Id = data[6];
-
-
-  // const data = id.split("&");
+  const { latt, lngi, areas, loca, employees, projects, projectids } = useParams();
   const Lat = parseFloat(latt);
   const Long = parseFloat(lngi);
   const Area = parseInt(areas);
@@ -49,8 +42,7 @@ const EmployeeAttendance = (props) => {
 
 
 
-  console.table(latt , lngi ,areas , loca , employees ,projects ,projectids , "Lat");
-
+  console.table(latt, "_", lngi, "_", areas, "_", loca, "_", employees, "_", projects, "_", projectids, "Lat");
   const center = {
     lat: Lat,
     lng: Long,
@@ -60,7 +52,7 @@ const EmployeeAttendance = (props) => {
   const [outdone, setOutdone] = useState(false);
   const [showBackdrop, setShowBackdrop] = useState(false);
   const [markerPosition, setMarkerPosition] = useState(center);
-  const [markerPosition2, setMarkerPosition2] = useState({lat: 28.4125751 , lng : 77.0440402});
+  const [markerPosition2, setMarkerPosition2] = useState({ lat: 28.4125751, lng: 77.0440402 });
   const [locationName, setLocationName] = useState("");
   const [latitude, setLatitude] = useState(Lat);
   const [longitude, setLongitude] = useState(Long);
@@ -70,12 +62,48 @@ const EmployeeAttendance = (props) => {
   const [circleRadius, setCircleRadius] = useState(Area); // Default radius of the circle in meters
   const [isInsideCircle, setIsInsideCircle] = useState(false);
   const [locError, setLocError] = useState(false);
+  const [empdata, setData] = useState([]);
+
 
   // const location = useLocation();
 
-  const employeeData = props.state.result;
 
-  console.log(employeeData, "emp-data");
+
+  useEffect(() => {
+    let config = {
+      method: "put",
+      maxBodyLength: Infinity,
+      url: "/emp_data_one",
+      headers: {
+        authorization_key: "qzOUsBmZFgMDlwGtrgYypxUz",
+        "Content-Type": "application/json",
+      },
+      data: {
+        ADMIN_USERNAME: state[3],
+        EMPLOYEE_ID: state[0]
+      }
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+
+        const data = response.data;
+        if (data.result) {
+          setTimeout(() => (setData(data.result)), 0)
+
+          console.log(data.result, "mylogin r");
+        }
+      })
+      .catch((error) => {
+        console.log(error, "errors");
+      });
+  }, [state[2]]);
+
+
+  let employeeData = empdata;
+
+  console.log(markerPosition, state, "emp-data");
 
   const currentTime = new Date().toLocaleTimeString();
   const currentDate = new Date().toLocaleDateString();
@@ -93,10 +121,17 @@ const EmployeeAttendance = (props) => {
   console.log(formattedDate, "for");
 
 
-  const logout = () => {
-    // Clear a cookie by specifying its name
-    Cookies.remove("myResponseData");
-    navigate("/employee/login");
+
+
+  const logout = async () => {
+    try {
+      await auth.signOut();
+      // Add any additional logout-related actions here
+      navigate('/employee/login')
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error logging out: ', error);
+    }
   };
 
   const handleSubmitIn = (event) => {
@@ -239,9 +274,9 @@ const EmployeeAttendance = (props) => {
     const a =
       Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
       Math.cos(phi1) *
-        Math.cos(phi2) *
-        Math.sin(deltaLambda / 2) *
-        Math.sin(deltaLambda / 2);
+      Math.cos(phi2) *
+      Math.sin(deltaLambda / 2) *
+      Math.sin(deltaLambda / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
 
@@ -264,7 +299,7 @@ const EmployeeAttendance = (props) => {
 
   useEffect(() => {
     getLocation();
-  }, [latt , lngi ,areas , loca , employees ,projects ,projectids  ]);
+  }, [latt, lngi, areas, loca, employees, projects, projectids]);
 
   useEffect(() => {
     if (latitude && longitude && circleCenter[0] && circleCenter[1]) {
@@ -407,7 +442,7 @@ const EmployeeAttendance = (props) => {
 
                     {outdone ? (
                       <td>
-                        <Button disabled name="in_btn" variant="contained"  className="btn btn-block">
+                        <Button disabled name="in_btn" variant="contained" className="btn btn-block">
                           PUNCH OUT
                         </Button>
                       </td>
@@ -437,28 +472,35 @@ const EmployeeAttendance = (props) => {
               </table>
             </div>
 
-            <div className="col-lg-12 col-md-12 col-xl-6">
-              {markerPosition && (
-                <GoogleMap
-                  mapContainerStyle={containerStyle}
-                  center={markerPosition || center} // Use markerPosition if available, else use center
-                  zoom={markerPosition ? 13 : 10} // Zoom in when markerPosition is available
-                >
-                  {markerPosition && <MarkerF position={markerPosition} />}
-                  {markerPosition2 && <MarkerF position={markerPosition2} />}
 
-                  <CircleF
-                    center={markerPosition}
-                    radius={circleRadius}
-                    options={{
-                      fillColor: "#FF0000",
-                      fillOpacity: 0.2,
-                      strokeColor: "#FF0000",
-                      strokeOpacity: 1,
-                      strokeWeight: 1,
-                    }}
-                  />
-                </GoogleMap>
+
+            <div className="col-lg-12 col-md-12 col-xl-6 ">
+              {markerPosition && (
+                <LoadScript
+                  googleMapsApiKey={GOOGLE_MAPS_API_KEY}
+                  libraries={GOOGLE_MAPS_LIBRARIES}
+                >
+                  <GoogleMap
+                    mapContainerStyle={containerStyle}
+                    center={markerPosition || center} // Use markerPosition if available, else use center
+                    zoom={markerPosition ? 13 : 10} // Zoom in when markerPosition is available
+                  >
+                    {markerPosition && <MarkerF position={markerPosition} />}
+                    {markerPosition2 && <MarkerF position={markerPosition2} />}
+
+                    <CircleF
+                      center={markerPosition}
+                      radius={circleRadius}
+                      options={{
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.2,
+                        strokeColor: "#FF0000",
+                        strokeOpacity: 1,
+                        strokeWeight: 1,
+                      }}
+                    />
+                  </GoogleMap>
+                </LoadScript>
               )}
             </div>
           </div>

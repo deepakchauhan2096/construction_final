@@ -47,10 +47,7 @@ function AdminLogin({ onDataFetched }) {
         setIsSubmitting(false);
         setLoginSuccess(true);
         const data = response.data;
-        if (data.operation === "successfull") {
-          Cookies.set("myResponseData", JSON.stringify(data), { expires: 7 }); // Cookie will expire in 7 days
-          window.location.replace("/admin");
-        }
+        navigate("/admin")
       })
       .catch((error) => {
         setErrorMsg(error.response.data.error);
@@ -61,9 +58,8 @@ function AdminLogin({ onDataFetched }) {
   return (
     <div className={styles.container}>
       <div className={styles.innerBox}>
-        <h1 className={styles.heading}>
-          Login<sup style={{ fontSize: "20px", color: "tomato" }}>Admin</sup>
-        </h1>
+        <h5 className={styles.heading}>Shalbro Constructions</h5>
+        <h5 className="text-center">Login(root)</h5>
 
         <InputControl
           label="Username"
