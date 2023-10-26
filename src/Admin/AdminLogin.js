@@ -47,13 +47,17 @@ function AdminLogin({ onDataFetched }) {
         setIsSubmitting(false);
         setLoginSuccess(true);
         const data = response.data;
-        navigate("/admin")
+        console.log(data,"data l")
+        navigate("/admin" ,{ state : data.user })
       })
       .catch((error) => {
         setErrorMsg(error.response.data.error);
         setIsSubmitting(false);
       });
   };
+
+  
+
 
   return (
     <div className={styles.container}>

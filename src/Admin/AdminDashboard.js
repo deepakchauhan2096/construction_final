@@ -11,9 +11,9 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 const itemsPerPage = 8;
 
 const AdminDashboard = (props) => {
-  // const { state } = useLocation()
-  console.log(props.adminData, "tableRows")
-  const tableRows = props.adminData;
+  const { state } = useLocation()
+  // console.log(props.adminData, "props.adminData")
+  const tableRows = state;
   const [RowsData, setRows] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);

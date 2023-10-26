@@ -53,8 +53,9 @@ function App() {
 
       if (response.status === 200) {
         const data = response.data;
-        setUser(data.user);
-        // <Navigate to="/admin" />
+        if(data.user){
+          setUser(data.user);
+        }
       } else {
         setUser(null);
       }
